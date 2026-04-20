@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Артефакты Просветленного</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Артефакты Просветленного | Сохранение состояния</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -52,42 +52,105 @@
             font-style: italic;
         }
         
-        .artifact-card {
+        /* Карточки артефактов и синергии */
+        .artifact-card, .synergy-card {
             background: #2c3e50;
             border-radius: 8px;
-            padding: 16px 12px;
             margin-bottom: 16px;
             border: 1px solid #5d6d7e;
+            transition: transform 0.2s ease;
+            overflow: hidden;
+        }
+        
+        .artifact-card {
             border-left: 4px solid #3498db;
         }
         
-        .artifact-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #5d6d7e;
+        .synergy-card {
+            border-left: 4px solid #e67e22;
         }
         
-        .artifact-icon {
+        .artifact-card:active, .synergy-card:active {
+            transform: scale(0.99);
+        }
+        
+        /* Шапка — кликабельная область */
+        .artifact-header, .synergy-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            background: rgba(52, 73, 94, 0.5);
+            border-bottom: 1px solid transparent;
+        }
+        
+        .artifact-header:hover, .synergy-header:hover {
+            background: #3a5a6e;
+        }
+        
+        /* активная шапка (когда контент скрыт) — меняем нижнюю границу */
+        .artifact-card.collapsed .artifact-header,
+        .synergy-card.collapsed .synergy-header {
+            border-bottom-color: #5d6d7e;
+        }
+        
+        .artifact-icon, .synergy-icon {
             font-size: 1.8rem;
             margin-right: 12px;
-            color: #3498db;
             min-width: 40px;
             text-align: center;
         }
         
-        .artifact-title {
+        .artifact-icon {
+            color: #3498db;
+        }
+        
+        .synergy-icon {
+            color: #e67e22;
+        }
+        
+        .artifact-title, .synergy-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: #e8f4fd;
             line-height: 1.2;
+            flex: 1;
         }
         
+        /* индикатор-стрелка */
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: #a3c4e0;
+            margin-left: 8px;
+            transition: transform 0.25s ease;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .artifact-card.collapsed .toggle-icon,
+        .synergy-card.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+        
+        /* Содержимое, которое сворачивается */
+        .card-content {
+            padding: 0 12px 16px 12px;
+            transition: all 0.2s ease;
+        }
+        
+        /* при скрытии контента — убираем отступы и прячем */
+        .collapsed .card-content {
+            display: none;
+        }
+        
+        /* внутренние элементы */
         .artifact-stats {
             display: flex;
             gap: 8px;
             margin-bottom: 14px;
+            margin-top: 6px;
         }
         
         .stat {
@@ -170,38 +233,6 @@
             font-size: 0.95rem;
         }
         
-        .synergy-card {
-            background: #2c3e50;
-            border-radius: 8px;
-            padding: 16px 12px;
-            margin-bottom: 16px;
-            border: 1px solid #5d6d7e;
-            border-left: 4px solid #e67e22;
-        }
-        
-        .synergy-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #5d6d7e;
-        }
-        
-        .synergy-icon {
-            font-size: 1.8rem;
-            margin-right: 12px;
-            color: #e67e22;
-            min-width: 40px;
-            text-align: center;
-        }
-        
-        .synergy-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #e8f4fd;
-            line-height: 1.2;
-        }
-        
         .rarity-badge {
             background: #3498db;
             color: white;
@@ -235,149 +266,100 @@
             margin-left: 6px;
         }
         
-        /* Адаптация для мобильных */
+        /* адаптив */
         @media (max-width: 480px) {
             body {
                 padding: 10px;
                 font-size: 13px;
             }
-            
             header {
                 padding: 14px 10px;
                 margin-bottom: 16px;
             }
-            
             h1 {
                 font-size: 1.2rem;
             }
-            
             .subtitle {
                 font-size: 0.8rem;
             }
-            
-            .artifact-card {
-                padding: 14px 10px;
+            .artifact-card, .synergy-card {
                 margin-bottom: 14px;
             }
-            
-            .artifact-icon {
+            .artifact-header, .synergy-header {
+                padding: 14px 10px;
+            }
+            .artifact-icon, .synergy-icon {
                 font-size: 1.6rem;
                 margin-right: 10px;
                 min-width: 35px;
             }
-            
-            .artifact-title {
+            .artifact-title, .synergy-title {
                 font-size: 1.1rem;
             }
-            
             .stat {
                 padding: 6px 8px;
                 font-size: 0.8rem;
             }
-            
             .ability {
                 padding: 10px;
-                margin-bottom: 10px;
             }
-            
             .ability-title {
                 font-size: 0.9rem;
             }
-            
             .ability-description {
                 font-size: 0.8rem;
             }
-            
-            .synergy-card {
-                padding: 14px 10px;
-            }
-            
-            .synergy-title {
-                font-size: 1.1rem;
+            .card-content {
+                padding: 0 10px 14px 10px;
             }
         }
         
-        /* Особые стили для очень маленьких экранов */
         @media (max-width: 360px) {
-            .artifact-header {
-                flex-direction: column;
-                text-align: center;
+            .artifact-header, .synergy-header {
+                flex-wrap: wrap;
             }
-            
-            .artifact-icon {
-                margin-right: 0;
+            .artifact-icon, .synergy-icon {
                 margin-bottom: 6px;
             }
-            
             .artifact-stats {
                 flex-direction: column;
             }
-            
             .ability-header {
                 flex-direction: column;
             }
-            
             .ability-icon {
-                margin-right: 0;
                 margin-bottom: 4px;
             }
-            
-            .synergy-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .synergy-icon {
-                margin-right: 0;
-                margin-bottom: 6px;
-            }
         }
         
-        /* Улучшение читаемости */
         .ability-description strong {
             color: #a3c4e0;
-            font-size: 0.85rem;
         }
         
-        /* Плавные анимации */
-        .artifact-card, .synergy-card {
-            transition: transform 0.2s ease;
-        }
-        
-        .artifact-card:active, .synergy-card:active {
-            transform: scale(0.98);
-        }
-        
-        /* Оптимизация для сенсорных экранов */
-        .stat, .ability {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        .artifact-header, .synergy-header {
+            transition: background 0.2s, border-color 0.2s;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-church"></i> Артефакты Просветленного</h1>
-            <p class="subtitle">Священные реликвии несущие мудрость и защиту</p>
-        </header>
-        
-        <!-- Доспех Посвященного -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-shield-alt artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">ДОСПЕХ ПОСВЯЩЕННОГО <span class="rarity-badge">Легендарный</span></div>
-                </div>
-            </div>
-            
+<div class="container">
+    <header>
+        <h1><i class="fas fa-church"></i> Артефакты Просветленного</h1>
+        <p class="subtitle">Священные реликвии несущие мудрость и защиту • состояние блоков сохраняется</p>
+    </header>
+
+    <!-- ДОСПЕХ ПОСВЯЩЕННОГО -->
+    <div class="artifact-card" data-id="armor_consecrated">
+        <div class="artifact-header">
+            <i class="fas fa-shield-alt artifact-icon"></i>
+            <div class="artifact-title">ДОСПЕХ ПОСВЯЩЕННОГО <span class="rarity-badge">Легендарный</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="artifact-stats">
                 <div class="stat">+4 КБ</div>
                 <div class="stat">Ловкость макс. +3</div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-brain ability-icon"></i>
@@ -388,18 +370,16 @@
                     <p><strong>Знания Языков:</strong> Могу говорить только на знакомых языках.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-user-friends ability-icon"></i>
                     <div class="ability-title">Тень милосердия <span class="usage">3 раза в день</span></div>
                 </div>
                 <div class="ability-description">
-                    <p>При виде раненного существа возникают 3 мои зеркальные копии на расстоянии 30 вутов./p>
+                    <p>При виде раненного существа возникают 3 мои зеркальные копии на расстоянии 30 футов.</p>
                     <p>Проекция исцеляет 2d8 и уносит цель на расстояние до 30 футов.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-heart ability-icon"></i>
@@ -409,7 +389,6 @@
                     <p>Могу отменить весь нанесенный союзнику урон и принять половину на себя.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-monument ability-icon"></i>
@@ -419,16 +398,14 @@
                     <p>В момент смерти превращаюсь в золотую статую царя обезьян. Через 100 лет превращаюсь в святого и теряю память. Обращаюсь обратно при восстановлении полного уровня ХП.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-walking ability-icon"></i>
                     <div class="ability-title">Пассивные способности</div>
                 </div>
                 <div class="ability-description">
-                    <p><strong>Хождение по воде</strong> - возможность свободно перемещаться по водной поверхности.</p>
-                    <p><strong>Кармические связи</strong> - могу видеть связи между живыми существами.</p>
-                    
+                    <p><strong>Хождение по воде</strong> — возможность свободно перемещаться по водной поверхности.</p>
+                    <p><strong>Кармические связи</strong> — могу видеть связи между живыми существами.</p>
                     <div class="limitation">
                         <div class="limitation-header">
                             <i class="fas fa-ban limitation-icon"></i>
@@ -440,7 +417,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-fist-raised ability-icon"></i>
@@ -451,16 +427,16 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Посох Просветленного Ханумана -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-cross artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">ПОСОХ ПРОСВЯТЛЕННОГО ХАНУМАНА <span class="rarity-badge">Легендарный</span></div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- ПОСОХ ПРОСВЯТЛЕННОГО ХАНУМАНА -->
+    <div class="artifact-card" data-id="staff_hanuman">
+        <div class="artifact-header">
+            <i class="fas fa-cross artifact-icon"></i>
+            <div class="artifact-title">ПОСОХ ПРОСВЯТЛЕННОГО ХАНУМАНА <span class="rarity-badge">Легендарный</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-hand-peace ability-icon"></i>
@@ -471,7 +447,6 @@
                     <p>Восстанавливает союзникам 1d8 ХП за 2/УЗ (7D8).</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-cloud ability-icon"></i>
@@ -483,16 +458,16 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Горлянка Ханумана: Сердце Сандживани -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-flask artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">ГОРЛЯНКА ХАНУМАНА: СЕРДЦЕ САНДЖИВАНИ <span class="rarity-badge">Легендарный</span></div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- ГОРЛЯНКА ХАНУМАНА: СЕРДЦЕ САНДЖИВАНИ -->
+    <div class="artifact-card" data-id="gourd_sanjivani">
+        <div class="artifact-header">
+            <i class="fas fa-flask artifact-icon"></i>
+            <div class="artifact-title">ГОРЛЯНКА ХАНУМАНА: СЕРДЦЕ САНДЖИВАНИ <span class="rarity-badge">Легендарный</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-eye ability-icon"></i>
@@ -502,7 +477,6 @@
                     <p>Небольшая горлянка, сплетенная из волокон легендарной травы Сандживани, с вырезанным на поверхности символом солнца (символом бессмертия Ханумана). Из нее исходит слабый запах горных трав и дикого меда.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-gem ability-icon"></i>
@@ -512,7 +486,6 @@
                     <p>Жрец может добровольно принять на себя физические страдания и раны других, трансформируя их в чистую, но опасную божественную энергию.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-cogs ability-icon"></i>
@@ -520,12 +493,11 @@
                 </div>
                 <div class="ability-description">
                     <p><strong>Активация:</strong> раз в минуту, в качестве реакции или отдельным действием жрец касается горлянки и одного согласного существа в пределах касания. Он может исцелить существо, переведя все его кровоточащие раны, болезни, яды или проклятия (проверка воли) на себя.</p>
-                    <p><strong>Преобразование Страдания:</strong> Вместо того чтобы получить стандартные эффекты (урон, состояние и т.д.), жрец преобразует половину полученного урона в «Капли Сандживани» — багровую, пульсирующую энергию, которая накапливается в горлянке.<Вторую половину урона жрец принимает на себя. </p>
+                    <p><strong>Преобразование Страдания:</strong> Вместо того чтобы получить стандартные эффекты (урон, состояние и т.д.), жрец преобразует половину полученного урона в «Капли Сандживани» — багровую, пульсирующую энергию, которая накапливается в горлянке. Вторую половину урона жрец принимает на себя.</p>
                     <p>За каждые 20 HP урона, которые он поглотил (посчитанные от уровня заклинания или урона от эффекта), он получает 1 «Каплю Сандживани».</p>
                     <p><strong>Максимум:</strong> Можно накопить Капель, равных его уровню + модификатор Мудрости.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-fire ability-icon"></i>
@@ -536,20 +508,20 @@
                     <p><strong>1 Капля:</strong> Увеличивает радиус любого заклинания исцеления или поддержки на 10 футов.</p>
                     <p><strong>3 Капли:</strong> Дают адресату заклинания исцеления Временные ПХП, равные уровень + модификатор Мудрости жреца.</p>
                     <p><strong>5 Капель:</strong> Заклинания исцеления в течении 3 раундов также подавляет один эффект яда, болезни или страх на цели (дают +2 к проверкам).</p>
-                    <p><strong>Все Капли (не менее 7):</strong> Совершить ритуал «Вспышка Сандживани». Все союзники в радиусе 30 футов полностью восстанавливают свое здоровье а жрец получает урон равный недостающему здоровью всех попавших под эффект но здоровье жреца не может опуститься ниже единицы (откат до долго отдыха).</p>
+                    <p><strong>Все Капли (не менее 7):</strong> Совершить ритуал «Вспышка Сандживани». Все союзники в радиусе 30 футов полностью восстанавливают свое здоровье, а жрец получает урон равный недостающему здоровью всех попавших под эффект, но здоровье жреца не может опуститься ниже единицы (откат до долгого отдыха).</p>
                 </div>
             </div>
         </div>
-        
-        <!-- Синергия артефактов -->
-        <div class="synergy-card">
-            <div class="synergy-header">
-                <i class="fas fa-infinity synergy-icon"></i>
-                <div>
-                    <div class="synergy-title">Синергия артефактов <span class="synergy-badge">При наличии 2/3</span></div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- СИНЕРГИЯ АРТЕФАКТОВ -->
+    <div class="synergy-card" data-id="synergy_artifacts">
+        <div class="synergy-header">
+            <i class="fas fa-infinity synergy-icon"></i>
+            <div class="synergy-title">Синергия артефактов <span class="synergy-badge">При наличии 2/3</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-users ability-icon"></i>
@@ -559,7 +531,6 @@
                     <p>Могу призвать 10 существ на 12 КБ и 1 ХП.</p>
                 </div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-question-circle ability-icon"></i>
@@ -570,15 +541,16 @@
                 </div>
             </div>
         </div>
-         <!-- Умеренный дар -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-balance-scale artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">УМЕРЕННЫЙ ДАР</div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- УМЕРЕННЫЙ ДАР -->
+    <div class="artifact-card" data-id="moderate_gift">
+        <div class="artifact-header">
+            <i class="fas fa-balance-scale artifact-icon"></i>
+            <div class="artifact-title">УМЕРЕННЫЙ ДАР</div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-fire ability-icon"></i>
@@ -589,16 +561,16 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Каменный символ бога -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-gem artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">КАМЕННЫЙ СИМВОЛ БОГА</div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- КАМЕННЫЙ СИМВОЛ БОГА -->
+    <div class="artifact-card" data-id="stone_symbol">
+        <div class="artifact-header">
+            <i class="fas fa-gem artifact-icon"></i>
+            <div class="artifact-title">КАМЕННЫЙ СИМВОЛ БОГА</div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-magic ability-icon"></i>
@@ -609,16 +581,16 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Загадочные перья -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-feather-alt artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">ЗАГАДОЧНЫЕ ПЕРЬЯ</div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- ЗАГАДОЧНЫЕ ПЕРЬЯ -->
+    <div class="artifact-card" data-id="mystic_feathers">
+        <div class="artifact-header">
+            <i class="fas fa-feather-alt artifact-icon"></i>
+            <div class="artifact-title">ЗАГАДОЧНЫЕ ПЕРЬЯ</div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-eye ability-icon"></i>
@@ -629,21 +601,20 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Нога Архимага -->
-        <div class="artifact-card">
-            <div class="artifact-header">
-                <i class="fas fa-shoe-prints artifact-icon"></i>
-                <div>
-                    <div class="artifact-title">НОГА АРХИМАГА</div>
-                </div>
-            </div>
-            
+    </div>
+
+    <!-- НОГА АРХИМАГА -->
+    <div class="artifact-card" data-id="archmage_leg">
+        <div class="artifact-header">
+            <i class="fas fa-shoe-prints artifact-icon"></i>
+            <div class="artifact-title">НОГА АРХИМАГА</div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-content">
             <div class="artifact-stats">
                 <div class="stat">+ 2 Атака</div>
                 <div class="stat">+ 5 футов</div>
             </div>
-            
             <div class="ability">
                 <div class="ability-header">
                     <i class="fas fa-wind ability-icon"></i>
@@ -653,14 +624,91 @@
                     <p>Помогает взмыть на 15 футов вверх или 30 футов вперед</p>
                     <p>Условия: затрачивает 2 действия и 3 круг заклинаний</p>
                 </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<script>
+    (function() {
+        // Ключ для localStorage
+        const STORAGE_KEY = 'artifact_collapsed_state';
+
+        // Функция сохранения состояний всех блоков
+        function saveStates() {
+            const cards = document.querySelectorAll('.artifact-card, .synergy-card');
+            const stateMap = {};
+            cards.forEach(card => {
+                const id = card.getAttribute('data-id');
+                if (id) {
+                    stateMap[id] = card.classList.contains('collapsed');
+                }
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stateMap));
+        }
+
+        // Функция загрузки и применения состояний
+        function loadStates() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+            
+            try {
+                const stateMap = JSON.parse(saved);
+                const cards = document.querySelectorAll('.artifact-card, .synergy-card');
+                cards.forEach(card => {
+                    const id = card.getAttribute('data-id');
+                    if (id && stateMap.hasOwnProperty(id)) {
+                        const shouldBeCollapsed = stateMap[id];
+                        if (shouldBeCollapsed) {
+                            card.classList.add('collapsed');
+                        } else {
+                            card.classList.remove('collapsed');
+                        }
+                    }
+                });
+            } catch(e) {
+                console.warn('Ошибка загрузки состояний', e);
+            }
+        }
+
+        // Инициализация: при клике на заголовок переключаем класс и сохраняем
+        function initCollapsibleWithSave() {
+            const cards = document.querySelectorAll('.artifact-card, .synergy-card');
+            
+            cards.forEach(card => {
+                const header = card.querySelector('.artifact-header, .synergy-header');
+                if (!header) return;
+                
+                // Убедимся, что иконка-стрелка существует (уже есть в разметке, но на всякий случай)
+                let toggleIcon = header.querySelector('.toggle-icon');
+                if (!toggleIcon) {
+                    toggleIcon = document.createElement('i');
+                    toggleIcon.className = 'fas fa-chevron-down toggle-icon';
+                    header.appendChild(toggleIcon);
+                }
+                
+                // Обработчик клика по шапке
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Переключаем состояние
+                    card.classList.toggle('collapsed');
+                    // Сохраняем обновлённое состояние
+                    saveStates();
+                });
+            });
+        }
+        
+        // Загружаем сохранённые состояния, затем инициализируем обработчики
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadStates();
+                initCollapsibleWithSave();
+            });
+        } else {
+            loadStates();
+            initCollapsibleWithSave();
+        }
+    })();
+</script>
 </body>
 </html>
-
-
-<style>
-
-</style>
-<script>
-
-</script>
